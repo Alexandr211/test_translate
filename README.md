@@ -68,6 +68,11 @@ docker-compose up -d --build
 docker-compose exec -T php php yii migrate --interactive=0
 ```
 
+Самый простой способ войти в translator_php:
+```bash
+docker exec -it translator_php bash
+```
+
 5. Открыть приложение:
 
 - Главная: `http://localhost:8080`
