@@ -32,26 +32,40 @@
 
 1. Поднять контейнеры:
 
+> В Ubuntu 22.04 может быть доступен `docker-compose` (v1), а не `docker compose` (v2).  
+> Если `docker compose` не найден, используйте команды с дефисом (`docker-compose`), как в примерах ниже.
+
 ```bash
-docker compose up -d --build
+docker-compose up -d --build
 ```
 
-2. Установить зависимости внутри контейнера (если нужно):
+2. Установить зависимости внутри контейнера (только если нужно):
+
+Если в проекте уже есть папка `vendor/` (как в текущем репозитории), зависимости будут смонтированы в контейнер, и `composer install` обычно не требуется. Он нужен после `git clone`, если `vendor/` отсутствует, или если вы удалили `vendor/`.
 
 ```bash
-docker compose exec php composer install
+docker-compose exec -T php composer install
 ```
 
-3. Инициализировать Yii Advanced:
+3. Инициализировать Yii Advanced (только если нужно):
+
+В репозитории уже есть сгенерированные файлы `*-local.php` (создаются командой `yii init`), поэтому для текущего проекта повторный `php init` не требуется. Шаг нужен после свежего `git clone`, если этих файлов нет.
 
 ```bash
-docker compose exec php php init --env=Development --overwrite=All
+docker-compose exec -T php php init --env=Development --overwrite=All
 ```
 
 4. Применить миграции:
 
 ```bash
-docker compose exec php php yii migrate --interactive=0
+docker-compose exec -T php php yii migrate --interactive=0
+```
+Если вам нужно перезапустить вручную:
+```bash
+cd /home/alexander/project1/test_translate
+docker-compose down
+docker-compose up -d --build
+docker-compose exec -T php php yii migrate --interactive=0
 ```
 
 5. Открыть приложение:
@@ -59,6 +73,7 @@ docker compose exec php php yii migrate --interactive=0
 - Главная: `http://localhost:8080`
 - Модуль переводчиков: `http://localhost:8080/translators`
 - API: `http://localhost:8080/api/availability?type=weekday`
+- MySQL с хоста: `127.0.0.1:33061` (порт `33060` часто занят локальным `mysql.service`)
 
 ## Пример API-ответа
 
