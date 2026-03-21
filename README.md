@@ -17,6 +17,7 @@
 - Миграции для таблицы `translator` и тестовые данные о занятости.
 - Веб-интерфейс с Vue 3 для выбора режима и отображения переводчиков.
 - API-эндпоинт для проверки доступности переводчиков.
+- API для создания и обновления записей в таблице `translator`.
 
 ## Структура проекта
 
@@ -68,7 +69,16 @@ docker-compose up -d --build
 docker-compose exec -T php php yii migrate --interactive=0
 ```
 
-Самый простой способ войти в translator_php:
+Чтобы остановить, но не удалить контейнеры:
+```bash
+docker-compose stop
+```
+
+Потом снова запустить те же контейнеры:
+```bash
+docker-compose start
+```
+Войти в translator_php:
 ```bash
 docker exec -it translator_php bash
 ```
@@ -78,6 +88,8 @@ docker exec -it translator_php bash
 - Главная: `http://localhost:8080`
 - Модуль переводчиков: `http://localhost:8080/translators`
 - API: `http://localhost:8080/api/availability?type=weekday`
+- Создать переводчика: `POST http://localhost:8080/api/translator` (body JSON, см. ниже)
+- Обновить переводчика: `PUT` / `PATCH` / `POST http://localhost:8080/api/translator/{id}`
 - MySQL с хоста: `127.0.0.1:33061` (порт `33060` часто занят локальным `mysql.service`)
 
 ## Пример API-ответа
@@ -97,6 +109,28 @@ docker exec -it translator_php bash
   "type": "weekend"
 }
 ```
+
+### Создание и обновление переводчика (API)
+
+Поля модели: `name`, `employment_type` (`weekday` | `weekend`), `language_pair`, опционально `is_available` (по умолчанию при создании — `true`).
+
+Создать (`POST`):
+
+```bash
+curl -s -X POST http://localhost:8080/api/translator \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Dima Ivanov","employment_type":"weekday","language_pair":"ru-en","is_available":true}'
+```
+
+Обновить (`PUT` или `PATCH`, также допускается `POST` для совместимости):
+
+```bash
+curl -s -X PATCH http://localhost:8080/api/translator/1 \
+  -H 'Content-Type: application/json' \
+  -d '{"is_available":false,"language_pair":"ru-de"}'
+```
+
+При ошибке валидации ответ с HTTP `422` и полем `errors`.
 
 ## Деплой на боевой сервер (базовый вариант)
 

@@ -20,6 +20,9 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
+            'parsers' => [
+                'application/json' => \yii\web\JsonParser::class,
+            ],
         ],
         'user' => [
             'identityClass' => 'common\models\User',
@@ -46,6 +49,10 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'POST api/translator' => 'api/availability/create',
+                'PUT api/translator/<id:\d+>' => 'api/availability/update',
+                'PATCH api/translator/<id:\d+>' => 'api/availability/update',
+                'POST api/translator/<id:\d+>' => 'api/availability/update',
                 'api/availability' => 'api/availability/index',
                 'translators' => 'translator/index',
                 'translator/list-json' => 'translator/list-json',
